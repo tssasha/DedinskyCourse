@@ -1,5 +1,4 @@
-all: build
-	./solution
+all: test run
 
 build:
 	g++ -Wall -o solution solution.cpp library.cpp

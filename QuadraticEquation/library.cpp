@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include "library.hpp"
+#include <cassert>
 
 int PrintCoefficients(double *coefficients) {
     std::cout << "Print the coefficients of the equation a*x^2 + b*x + c = 0" << std::endl;
@@ -10,18 +11,30 @@ int PrintCoefficients(double *coefficients) {
     std::cin >> coefficients[1];
     std::cout << "c = ";
     std::cin >> coefficients[2];
+    if (!std::isfinite(coefficients[0]) || !std::isfinite(coefficients[1]) || !std::isfinite(coefficients[2])) {
+        std::cout << "[ERR] input has infinite parametrs." << std::endl;
+        return -1;
+    }
     return 0;
 }
 
 bool IsZero(double num) {
+    if (!std::isfinite(num)) {
+        std::cout << "[ERR] the IsZero parametr is infinite." << std::endl;
+        return -1;
+    }
     return num < EPSILON && num > -EPSILON;
 }
 
 double Discriminant(double *coefficients) {
+    assert(std::isfinite(coefficients[0]));
+    assert(std::isfinite(coefficients[1]));
+    assert(std::isfinite(coefficients[2]));
     return coefficients[1] * coefficients[1] - 4.0 * coefficients[0] * coefficients[2]; //-----?
 }
 
 int IdenticalSolution(double *solutions, double coefficient) {
+    assert(std::isfinite(coefficient));
     if (IsZero(coefficient)) {
         solutions[0] = 1;
         solutions[1] = 0;
@@ -33,13 +46,23 @@ int IdenticalSolution(double *solutions, double coefficient) {
 }
 
 int LinearSolution(double *solutions, double *coefficients) {
+    assert(std::isfinite(coefficients[1]));
+    assert(std::isfinite(coefficients[2]));
     solutions[0] = 1;
     solutions[1] = -coefficients[2] / coefficients[1];
     return 0;
 }
 
 int QuadraticSolution(double *solutions, double *coefficients) {
+    assert(std::isfinite(coefficients[0]));
+    assert(std::isfinite(coefficients[1]));
+    assert(std::isfinite(coefficients[2]));
     double discriminant = Discriminant(coefficients);
+    if (std::isnan(discriminant)) {
+        std::cout << "[ERR] discriminant overflow." << std::endl;
+        return -1;
+    }
+    assert(std::isfinite(discriminant));
     if (!IsZero(discriminant) && discriminant < 0) {
         solutions[0] = 0;
     }
@@ -60,9 +83,12 @@ void PrintSolutions(double *solutions) {
         std::cout << "The equation has no solutions" << std::endl;
     }
     else if (IsZero(solutions[0] - 1)) {
+        assert(std::isfinite(solutions[1]));
         std::cout << "There is one solution of the equation:" << std::endl << "x = " << solutions[1] << std::endl;
     }
     else {
+        assert(std::isfinite(solutions[1]));
+        assert(std::isfinite(solutions[2]));
         std::cout << "There are two solutions of the equation:" << std::endl << "x1 = " << solutions[1] << std::endl << "x2 = " << solutions[2] << std::endl;
     }
 }
